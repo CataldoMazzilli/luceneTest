@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="org.apache.pdfbox:pdfbox-lucene:1.8.10" type="repository">
+    <properties maven-id="org.apache.pdfbox:pdfbox-lucene:1.8.10" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/pdfbox/pdfbox-lucene/1.8.10/pdfbox-lucene-1.8.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/pdfbox/pdfbox/1.8.10/pdfbox-1.8.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/pdfbox/fontbox/1.8.10/fontbox-1.8.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/pdfbox/jempbox/1.8.10/jempbox-1.8.10.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-core/2.4.1/lucene-core-2.4.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/lucene/lucene-demos/2.4.1/lucene-demos-2.4.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

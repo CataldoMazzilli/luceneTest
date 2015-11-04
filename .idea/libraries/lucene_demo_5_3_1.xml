@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="lucene-demo-5.3.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/lucene-demo-5.3.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.ideaLibSources/lucene-demo-5.3.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
