@@ -9,6 +9,7 @@ public class Client {
     public static void main(String[] args) {
 
         Injector injector = Guice.createInjector(new MyModule(args));
-
+        Indexer indexer = injector.getInstance(Indexer.class);
+        indexer.start();
     }
 }

@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
@@ -39,36 +41,40 @@ import java.util.Date;
  * This is a command-line application demonstrating simple Lucene indexing.
  * Run it with no command-line arguments for usage information.
  */
-public class LuceneDemo {
+public class Indexer {
 
-    static boolean pdfType = false;
-    static String indexPath = "indexDirectory";
-    static String docsPath = null;
-    static boolean create = true;
+    private final String usage;
+    private boolean pdfType;
+    private String indexPath;
+    private String docsPath;
+    private boolean create;
+    private Analyzer analyzer;
+    private MyFactory myFactory;
+
+
+    @Inject
+    public Indexer(@Named("usage") String usage,
+                   @Named("pdfType") boolean pdfType,
+                   @Named("indexPath") String indexPath,
+                   @Named("docsPath") String docsPath,
+                   @Named("create") boolean create,
+                   Analyzer analyzer,
+                   MyFactory myFactory)
+    {
+        this.usage = usage;
+        this.pdfType = pdfType;
+        this.indexPath = indexPath;
+        this.docsPath = docsPath;
+        this.create = create;
+        this.analyzer = analyzer;
+        this.myFactory = myFactory;
+    }
 
     /**
      * Index all text files under a directory.
      */
-    public static void main(String[] args) {
-        String usage = "java org.apache.lucene.demo.IndexFiles"
-                + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update] [-type]\n\n"
-                + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                + "in INDEX_PATH that can be searched with SearchFiles";
+    public void start() {
 
-
-        for (int i = 0; i < args.length; i++) {
-            if ("-index".equals(args[i])) {
-                indexPath = args[i + 1];
-                i++;
-            } else if ("-docs".equals(args[i])) {
-                docsPath = args[i + 1];
-                i++;
-            } else if ("-update".equals(args[i])) {
-                create = false;
-            } else if ("-type".equals(args[i])) {
-                pdfType = true;
-            }
-        }
 
         /** e' necessario specificare il path dei documenti*/
         if (docsPath == null) {
@@ -77,37 +83,38 @@ public class LuceneDemo {
         } else {
 
             /**crea path da stringa*/
-            final Path docDir = Paths.get(docsPath);
+            final Path documentDirectoryPath = Paths.get(docsPath);
 
             /**controlla che il path sia leggibile*/
-            if (!Files.isReadable(docDir)) {
-                System.out.println("Document directory '" + docDir.toAbsolutePath() + "' does not exist or is not readable, please check the path");
+            if (!Files.isReadable(documentDirectoryPath)) {
+                System.out.println("Document directory '" + documentDirectoryPath.toAbsolutePath() + "' does not exist or is not readable, please check the path");
                 System.exit(1);
             }
 
 
 
-            Date start = new Date();
+            Date start = myFactory.createDate();
             try {
                 System.out.println("Indexing to directory '" + indexPath + "'...");
 
 
                 /**istanzia Directory di tipo filesitem*/
-                Directory dir = FSDirectory.open(Paths.get(indexPath));
+                Directory directory = FSDirectory.open(Paths.get(indexPath));
                 /**istanzia analyzer*/
-                Analyzer analyzer = new StandardAnalyzer();
+                //Analyzer analyzer = new StandardAnalyzer();
 
                 /**istanzia IndexWriterConfig con alalyzer*/
-                IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
+                //IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+                IndexWriterConfig indexWriterConfig = myFactory.createIndexWriterConfigProvider(analyzer).get();
 
                 /**verifica che bisogna cancellare o aggiungere*/
                 if (create) {
                     // Create a new index in the directory, removing any
                     // previously indexed documents:
-                    iwc.setOpenMode(OpenMode.CREATE);
+                    indexWriterConfig.setOpenMode(OpenMode.CREATE);
                 } else {
                     // Add new documents to an existing index:
-                    iwc.setOpenMode(OpenMode.CREATE_OR_APPEND);
+                    indexWriterConfig.setOpenMode(OpenMode.CREATE_OR_APPEND);
                 }
 
                 // Optional: for better indexing performance, if you
@@ -115,13 +122,14 @@ public class LuceneDemo {
                 // buffer.  But if you do this, increase the max heap
                 // size to the JVM (eg add -Xmx512m or -Xmx1g):
                 //
-                // iwc.setRAMBufferSizeMB(256.0);
+                // indexWriterConfig.setRAMBufferSizeMB(256.0);
 
                 /**istanzia IndexWriter con directory e IndexWriterConfig */
-                IndexWriter writer = new IndexWriter(dir, iwc);
+                //IndexWriter writer = new IndexWriter(directory, indexWriterConfig);
+                IndexWriter writer = myFactory.createIndexWriterProvider(directory, indexWriterConfig).get();
 
                 /**avvia metodo di indexing passando come parametro il writer e il path dei documenti*/
-                indexDocs(writer, docDir);
+                indexDocs(writer, documentDirectoryPath);
 
                 // NOTE: if you want to maximize search performance,
                 // you can optionally call forceMerge here.  This can be
@@ -135,7 +143,7 @@ public class LuceneDemo {
                 writer.close();
 
                 /**verifica il tempo */
-                Date end = new Date();
+                Date end = myFactory.createDate();
                 System.out.println(end.getTime() - start.getTime() + " total milliseconds");
 
             } catch (IOException e) {
@@ -160,7 +168,7 @@ public class LuceneDemo {
      * @param path   The file to index, or the directory to recurse into to find files to index
      * @throws IOException If there is a low-level I/O error
      */
-    static void indexDocs(final IndexWriter writer, Path path) throws IOException {
+    private void indexDocs(final IndexWriter writer, Path path) throws IOException {
         if (Files.isDirectory(path)) {
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
                 @Override
@@ -181,12 +189,11 @@ public class LuceneDemo {
     /**
      * Indexes a single document
      */
-    static void indexDoc(IndexWriter writer, Path file, long lastModified) throws IOException {
+    private void indexDoc(IndexWriter writer, Path file, long lastModified) throws IOException {
         try (InputStream stream = Files.newInputStream(file)) {
             // make a new, empty document
-            Document doc = null;
+            Document doc = myFactory.createDocument();
             if (!pdfType) {
-                doc = new Document();
 
                 // Add the path of the file as a field named "path".  Use a
                 // field that is indexed (i.e. searchable), but don't tokenize
@@ -215,7 +222,6 @@ public class LuceneDemo {
                 String content = new PDFTextStripper().getText(pdfDocument);
                 pdfDocument.close();
 
-                doc = new Document();
 
                 Field pathField = new StringField("path", file.toString(), Field.Store.YES);
                 doc.add(pathField);

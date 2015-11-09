@@ -1,0 +1,60 @@
+<?xml version="1.0" ?>
+<project name="lucene_test" default="execute-client">
+    <description>compiles and runs</description>
+
+    <property name="build.classes.dir" location="build/classes"/>
+
+    <path id="compile.classpath">
+        <pathelement location="lib"/>
+    </path>
+
+
+    <target name="init">
+        <description>creates directory if dosn't exists</description>
+        <mkdir dir="build/classes"/>
+        <echo> build/classes created</echo>
+        <mkdir dir="dist"/>
+        <echo> dist created</echo>
+    </target>
+
+
+    <target name="compile" depends="init">
+        <description>Compiles the source code</description>
+        <javac srcdir="src" destdir="build/classes">
+            <classpath refid="compile.classpath"/>
+        </javac>
+
+    </target>
+
+
+    <target name="package" depends="compile">
+        <description>Creates the JAR file</description>
+        <jar destfile="dist/project.jar" basedir="build/classes"/>
+    </target>
+
+
+    <target name="clean" depends="init">
+        <description>Removes the temporary directories used</description>
+        <delete dir="build"/>
+        <delete dir="dist"/>
+    </target>
+
+
+    <target name="execute-client" depends="compile">
+        <description>Runs the program</description>
+        <echo level="warning" message="running"/>
+        <java classname="Client" classpath="build/classes">
+
+            <arg value="-index"/>
+            <arg value="indexDirectory"/>
+            <arg value="-docs"/>
+            <arg value="filesToIndex"/>
+
+
+        </java>
+
+
+    </target>
+
+
+</project>
