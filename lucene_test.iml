@@ -19,6 +19,8 @@
     <orderEntry type="library" name="javax.inject" level="project" />
     <orderEntry type="library" name="junit-4.11" level="project" />
     <orderEntry type="library" name="mockito-all-1.10.19" level="project" />
+    <orderEntry type="library" name="pdfbox-1.8.10" level="project" />
+    <orderEntry type="library" name="tika-app-1.11" level="project" />
   </component>
   <component name="org.twodividedbyzero.idea.findbugs">
     <option name="_basePreferences">
