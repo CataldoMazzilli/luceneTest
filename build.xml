@@ -1,27 +1,39 @@
 <?xml version="1.0" ?>
-<project name="lucene_test" default="execute-client">
+<project name="lucene_test" default="executeClientTxtDocs">
     <description>compiles and runs</description>
 
     <property name="build.classes.dir" location="build/classes"/>
+    <property name="lib.dir" location="lib"/>
 
-    <path id="compile.classpath">
-        <pathelement location="lib"/>
+
+    <path id="lib.path">
+        <fileset dir="${lib.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
+    </path>
+
+
+    <path id="class.path">
+        <fileset dir="build/classes">
+            <include name="**/*.class"/>
+        </fileset>
     </path>
 
 
     <target name="init">
         <description>creates directory if dosn't exists</description>
         <mkdir dir="build/classes"/>
-        <echo> build/classes created</echo>
+        <echo>build/classes created</echo>
         <mkdir dir="dist"/>
-        <echo> dist created</echo>
+        <echo>dist created</echo>
     </target>
 
 
     <target name="compile" depends="init">
         <description>Compiles the source code</description>
-        <javac srcdir="src" destdir="build/classes">
-            <classpath refid="compile.classpath"/>
+
+        <javac srcdir="src" destdir="build/classes" includeantruntime="false">
+            <classpath refid="lib.path"/>
         </javac>
 
     </target>
@@ -36,14 +48,25 @@
     <target name="clean" depends="init">
         <description>Removes the temporary directories used</description>
         <delete dir="build"/>
-        <delete dir="dist"/>
     </target>
 
 
-    <target name="execute-client" depends="compile">
-        <description>Runs the program</description>
+    <target name="executeClientTxtDocs" depends="compile">
+        <description>Runs the program from Client class with args: -index, indexDirectory, -docs, filesToIndex
+        </description>
         <echo level="warning" message="running"/>
-        <java classname="Client" classpath="build/classes">
+        <java classname="Client">
+            <!--<classpath>-->
+            <!--<pathelement path="${build.classes.dir}"/>-->
+            <!--<fileset dir="${lib.dir}">-->
+            <!--<include name="*.jar" />-->
+            <!--</fileset>-->
+
+            <!--</classpath>-->
+
+
+            <classpath location="${build.classes.dir}"/>
+            <classpath refid="lib.path"/>
 
             <arg value="-index"/>
             <arg value="indexDirectory"/>
@@ -56,5 +79,67 @@
 
     </target>
 
+    <target name="executeClientPdfDocs" depends="compile">
+        <description>
+            Runs the program from Client class with args: -index,
+            indexDirectory, -docs, filesToIndex, -type, pdf
+        </description>
+        <echo level="warning" message="running"/>
+        <java classname="Client">
+
+            <classpath location="${build.classes.dir}"/>
+            <classpath refid="lib.path"/>
+
+            <arg value="-index"/>
+            <arg value="indexDirectory"/>
+            <arg value="-docs"/>
+            <arg value="pdfFile"/>
+            <arg value="-type"/>
+            <arg value="pdf"/>
+
+        </java>
+    </target>
+
+
+
+
+    <target name="executeSearchFileWithQuery" depends="compile">
+        <description>
+            Runs the program from Client class with args: -index,
+            indexDirectory, -query, acqua
+        </description>
+        <echo level="warning" message="running"/>
+        <java classname="SearchFile">
+
+            <classpath location="${build.classes.dir}"/>
+            <classpath refid="lib.path"/>
+
+            <arg value="-index"/>
+            <arg value="indexDirectory"/>
+            <arg value="-query"/>
+            <arg value="acqua"/>
+
+        </java>
+    </target>
+
+
+    <target name="executeSearchFileWithQueries" depends="compile">
+        <description>
+            Runs the program from Client class with args: -index,
+            indexDirectory, -queries, query
+        </description>
+        <echo level="warning" message="running"/>
+        <java classname="SearchFile">
+
+            <classpath location="${build.classes.dir}"/>
+            <classpath refid="lib.path"/>
+
+            <arg value="-index"/>
+            <arg value="indexDirectory"/>
+            <arg value="-queries"/>
+            <arg value="query"/>
+
+        </java>
+    </target>
 
 </project>
